@@ -16,7 +16,7 @@ export function DashboardClient({ date, initialEntry, dayNumber }: Props) {
 
   return (
     <>
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl px-6 py-4">
         <EntryForm
           date={date}
           initialEntry={initialEntry}

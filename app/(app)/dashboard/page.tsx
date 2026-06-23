@@ -4,6 +4,7 @@ import { todayISO, formatDateDisplay } from '@/lib/utils/date'
 import { DashboardClient } from './DashboardClient'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
 import { GratitudeVerse } from '@/components/dashboard/GratitudeVerse'
+import { DownloadAppButton } from '@/components/dashboard/DownloadAppButton'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -15,10 +16,9 @@ export default async function DashboardPage() {
     : { entry: null, dayNumber: 1 }
 
   return (
-    <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-6 flex flex-col gap-6">
+    <div className="max-w-2xl mx-auto w-full px-4 pt-10 pb-12 flex flex-col gap-10">
       <DayChangeWatcher renderedDate={today} />
 
-     
 
       {/* Header */}
       <div className="flex flex-col gap-2 text-center">
@@ -28,17 +28,22 @@ export default async function DashboardPage() {
         <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--foreground)]">
           WHAT ARE YOU GRATEFUL FOR?
         </h1>
-        <div className="flex items-center justify-center gap-2 mt-1">
+        <div className="flex items-center justify-center gap-2 mt-1 mb-4">
           <span className="text-[var(--muted)] text-sm">Today is</span>
           <span className="bg-tigf-magenta text-white font-bold text-sm px-3 py-1 rounded-full">
             Day {dayNumber}
           </span>
         </div>
+
+        <GratitudeVerse />
+
       </div>
 
-       <GratitudeVerse />
-
       <DashboardClient date={today} initialEntry={entry} dayNumber={dayNumber} />
+
+        <div className="mt-1">
+          <DownloadAppButton />
+        </div>
     </div>
   )
 }
