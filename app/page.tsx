@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { GuestBanner } from '@/components/layout/GuestBanner'
 import { GuestDashboard } from '@/components/dashboard/GuestDashboard'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
+import { InstallPrompt } from '@/components/layout/InstallPrompt'
 import { todayISO } from '@/lib/utils/date'
 
 export default async function HomePage() {
@@ -17,7 +18,7 @@ export default async function HomePage() {
     <div className="flex flex-col">
       <DayChangeWatcher renderedDate={today} />
       <GuestBanner />
-      <div className="max-w-2xl mx-auto w-full px-4 pt-4 pb-12 flex flex-col gap-10">
+      <div className="max-w-2xl mx-auto w-full px-4 pt-6 pb-12 flex flex-col gap-10">
         {/* Hero */}
         <div className="text-center flex flex-col gap-3">
           <p className="text-xs font-bold tracking-[0.25em] text-tigf-magenta uppercase">Day 1 starts now</p>
@@ -48,6 +49,8 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
+
+      <InstallPrompt />
     </div>
   )
 }

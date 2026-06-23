@@ -53,16 +53,16 @@ function drawBlobs(ctx: CanvasRenderingContext2D, c: typeof BRAND, S: number) {
   // Bottom-left blob
   ctx.beginPath()
   ctx.moveTo(0, S)
-  ctx.bezierCurveTo(0, S - 110, 55, S - 170, 175, S - 105)
-  ctx.bezierCurveTo(245, S - 60, 220, S - 8, 275, S)
+  ctx.bezierCurveTo(0, S - 90, 55, S - 145, 175, S - 85)
+  ctx.bezierCurveTo(245, S - 45, 220, S - 4, 275, S)
   ctx.closePath()
   ctx.fill()
 
   // Bottom-right blob (mirrored)
   ctx.beginPath()
   ctx.moveTo(S, S)
-  ctx.bezierCurveTo(S, S - 110, S - 55, S - 170, S - 175, S - 105)
-  ctx.bezierCurveTo(S - 245, S - 60, S - 220, S - 8, S - 275, S)
+  ctx.bezierCurveTo(S, S - 90, S - 55, S - 145, S - 175, S - 85)
+  ctx.bezierCurveTo(S - 245, S - 45, S - 220, S - 4, S - 275, S)
   ctx.closePath()
   ctx.fill()
 
@@ -162,7 +162,7 @@ export function drawTIGF(config: DrawConfig) {
   ctx.save()
   ctx.fillStyle = c.magenta
   ctx.font = `500 24px 'Fredoka', Arial, sans-serif`
-  spacedText(ctx, formatDateDisplay(date), PAD, logoY + logoHeight + 69, 4, 'left')
+  spacedText(ctx, formatDateDisplay(date), PAD + 22, logoY + logoHeight + 69, 4, 'left')
   ctx.restore()
 
   // ── "Today, I'm [N] Grateful For:" row + fused badge/card ─

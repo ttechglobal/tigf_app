@@ -2,7 +2,7 @@
   "name": "TIGF — Today I'm Grateful For",
   "short_name": "TIGF",
   "description": "Write what you're grateful for today.",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#fffef4",
   "theme_color": "#a62c71",
