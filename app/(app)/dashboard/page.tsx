@@ -41,7 +41,7 @@ export default async function DashboardPage() {
 
       <DashboardClient date={today} initialEntry={entry} dayNumber={dayNumber} />
 
-        <div className="mt-1">
+        <div>
           <DownloadAppButton />
         </div>
     </div>
