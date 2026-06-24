@@ -48,17 +48,22 @@ export function CanvasRenderer({ items, dayNumber, date }: CanvasRendererProps) 
     if (!canvas) return
     canvas.toBlob(async (blob) => {
       if (!blob) return
-      const result = await shareImage(blob, `Day ${dayNumber} — Today I'm Grateful For`)
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      const result = await shareImage(
+        blob,
+        `Day ${dayNumber} — Today I'm Grateful For`,
+        siteUrl
+      )
       setShareStatus(
         result === 'shared'  ? '🎉 Shared!' :
-        result === 'copied'  ? '📋 Link copied!' :
+        result === 'copied'  ? '📋 Caption + link copied!' :
                                '⚠ Could not share.'
       )
     }, 'image/png')
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       {/* Off-screen 1080×1080 canvas — never visible directly */}
       <canvas ref={canvasRef} width={1080} height={1080} className="sr-only" aria-hidden />
 
@@ -74,7 +79,7 @@ export function CanvasRenderer({ items, dayNumber, date }: CanvasRendererProps) 
       )}
 
       {/* Action buttons */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <Button
           onClick={generate}
           loading={generating}
@@ -86,7 +91,7 @@ export function CanvasRenderer({ items, dayNumber, date }: CanvasRendererProps) 
         </Button>
 
         {imgSrc && (
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button onClick={download} variant="secondary" size="md" className="flex-1">
               ↓ Download PNG
             </Button>
