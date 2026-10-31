@@ -30,9 +30,22 @@ export function todayISO(): string {
  * Not based on how many entries the user has written; a pure date calculation.
  * Accepts an ISO date string (YYYY-MM-DD) or a Date.
  */
+export function isValidDate(date: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && Number(date.slice(0, 4)) >= 1 &&
+    !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date
+}
+
+export function todayInTimezone(timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())
+  const part = (type: string) => parts.find(p => p.type === type)!.value
+  return `${part('year')}-${part('month')}-${part('day')}`
+}
+
 export function dayOfYear(date: Date | string): number {
   const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : date
-  const startOfYear = new Date(d.getFullYear(), 0, 1)
-  const diffMs = d.getTime() - startOfYear.getTime()
+  const startOfYear = Date.UTC(d.getFullYear(), 0, 1)
+  const diffMs = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - startOfYear
   return Math.floor(diffMs / 86400000) + 1
 }

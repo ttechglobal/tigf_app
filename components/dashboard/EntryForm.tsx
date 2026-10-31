@@ -54,7 +54,7 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
     }
 
     startTransition(async () => {
-      const result = await saveEntry(date, filtered)
+      const result = await saveEntry(date, filtered, Intl.DateTimeFormat().resolvedOptions().timeZone)
       if (result.error) {
         setError(result.error)
       } else {

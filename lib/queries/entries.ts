@@ -33,12 +33,14 @@ export async function getTodayEntry(
 ): Promise<{ entry: Entry | null; dayNumber: number }> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('entries')
     .select('*')
     .eq('user_id', userId)
     .eq('date', todayDate)
     .maybeSingle()
+
+  if (error) throw new Error('Could not load this entry. Please try again.')
 
   return {
     entry: (data as Entry | null) ?? null,

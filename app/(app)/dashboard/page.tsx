@@ -1,18 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { getTodayEntry } from '@/lib/queries/entries'
-import { todayISO, formatDateDisplay } from '@/lib/utils/date'
+import { todayISO, formatDateDisplay, isValidDate, todayInTimezone } from '@/lib/utils/date'
+import { EntryDatePicker } from '@/components/dashboard/EntryDatePicker'
 import { DashboardClient } from './DashboardClient'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
 import { GratitudeVerse } from '@/components/dashboard/GratitudeVerse'
 import { DownloadAppButton } from '@/components/dashboard/DownloadAppButton'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: {
+  searchParams: Promise<{ date?: string; tz?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const today = todayISO()
+  const query = await searchParams
+  let today = todayISO()
+  try { if (query.tz) today = todayInTimezone(query.tz) } catch {}
+  const date = query.date && isValidDate(query.date) && query.date <= today ? query.date : today
   const { entry, dayNumber } = user
-    ? await getTodayEntry(user.id, today)
+    ? await getTodayEntry(user.id, date)
     : { entry: null, dayNumber: 1 }
 
   return (
@@ -23,13 +29,13 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-2 text-center">
         <p className="text-xs font-bold tracking-[0.25em] text-tigf-magenta uppercase">
-          {formatDateDisplay(today)}
+          {formatDateDisplay(date)}
         </p>
         <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--foreground)]">
           WHAT ARE YOU GRATEFUL FOR?
         </h1>
         <div className="flex items-center justify-center gap-2 mt-1 mb-4">
-          <span className="text-[var(--muted)] text-sm">Today is</span>
+          <span className="text-[var(--muted)] text-sm">{date === today ? 'Today is' : 'You’re writing for'}</span>
           <span className="bg-tigf-magenta text-white font-bold text-sm px-3 py-1 rounded-full">
             Day {dayNumber}
           </span>
@@ -39,7 +45,8 @@ export default async function DashboardPage() {
 
       </div>
 
-      <DashboardClient date={today} initialEntry={entry} dayNumber={dayNumber} />
+      <EntryDatePicker date={date} today={today} />
+      <DashboardClient key={date} date={date} initialEntry={entry} dayNumber={dayNumber} />
 
         <div>
           <DownloadAppButton />

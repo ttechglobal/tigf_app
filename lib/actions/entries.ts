@@ -2,12 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { isValidDate, todayInTimezone } from '@/lib/utils/date'
 
 /**
- * Save (or update) today's gratitude entry.
+ * Save (or update) a gratitude entry for today or a past date.
  * One entry per user per day — saving again on the same day overwrites it.
  */
-export async function saveEntry(date: string, items: string[]) {
+export async function saveEntry(date: string, items: string[], timeZone = 'UTC') {
+  let today: string
+  try { today = todayInTimezone(timeZone) } catch { return { error: 'Invalid time zone.' } }
+  if (!isValidDate(date) || date > today) return { error: 'Choose today or a past date.' }
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }

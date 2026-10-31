@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { logOut } from '@/lib/actions/auth'
 import { ThemeToggleRow } from './ThemeToggleRow'
+import { ReminderSettings } from './ReminderSettings'
 
 export const metadata = { title: 'Settings' }
 
@@ -49,6 +50,7 @@ export default async function SettingsPage() {
       </div>
 
       {/* Sign out */}
+      <ReminderSettings />
       <form action={logOut}>
         <button
           type="submit"

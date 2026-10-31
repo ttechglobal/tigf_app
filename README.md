@@ -1,6 +1,6 @@
 # TIGF — Today I'm Grateful For
 
-The simplest possible gratitude app. Write what you're grateful for today,
+The simplest possible gratitude app. Write what you're grateful for today or a missed day,
 save it, and generate an image to download. That's it.
 
 **Stack:** Next.js 16 (App Router) · Supabase (auth + Postgres) · Tailwind CSS v4 · HTML Canvas · installable PWA
@@ -11,13 +11,14 @@ save it, and generate an image to download. That's it.
 
 1. Sign up / log in (email + password via Supabase)
 2. Write 1+ things you're grateful for today → Save
-3. See your day count ("Day 7") — counts from your first ever entry
+3. See the calendar day number ("Day 7" means January 7)
 4. Generate a 1080×1080 image of today's entry → Download
-5. Look back at past entries in **My Journal** (read-only list)
+5. Look back at past entries in **My Journal** and open them to edit
 6. Install it on your phone/desktop as an app (PWA)
 
-Nothing else. No community feed, no profile/stats page, no entry editing
-after the fact — just write, save, generate, look back.
+Choose an entry date on the dashboard to catch up or edit an existing entry.
+Daily push reminders are opt-in in Settings, with a changeable 6 p.m. default.
+See [REMINDERS.md](REMINDERS.md) for the database migration and delivery setup.
 
 ---
 
@@ -107,7 +108,7 @@ Two tables:
 | `entries` | `user_id`, `date`, `items` (a list of strings), timestamps |
 
 - One entry per user per day — saving again the same day overwrites it
-- "Day N" is never stored. It's just "how many entries does this user have, sorted by date, what position is today's?" — computed fresh every time, so it can never be wrong or go stale.
+- "Day N" is never stored. It is the entry date's calendar day of the year, starting at January 1.
 
 ---
 

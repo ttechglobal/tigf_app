@@ -22,6 +22,8 @@ export default async function JournalPage() {
         </p>
       </div>
 
+      <a href="/dashboard" className="text-sm font-semibold text-tigf-magenta">Add an entry for a missed day →</a>
+
       {reversed.length === 0 ? (
         <div className="text-center py-16 flex flex-col gap-3">
           <div className="text-5xl">🌱</div>

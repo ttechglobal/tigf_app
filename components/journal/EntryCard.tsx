@@ -19,6 +19,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
           </li>
         ))}
       </ul>
+      <a href={`/dashboard?date=${entry.date}`} className="text-sm font-semibold text-tigf-magenta">Edit entry →</a>
     </div>
   )
 }
