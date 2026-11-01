@@ -1,0 +1,5 @@
+project_id = "tigf"
+
+# The handler authenticates the scheduler using REMINDER_CRON_SECRET.
+[functions.daily-reminders]
+verify_jwt = false

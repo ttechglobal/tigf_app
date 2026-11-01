@@ -24,7 +24,7 @@ export function ReminderSettings() {
         if (result.error) throw new Error(result.error)
         if (result.reminder) {
           setEnabled(Notification.permission === 'granted')
-          setTime(result.reminder.time.slice(0, 5))
+          setTime(`${result.reminder.time.slice(0, 2)}:00`)
         }
       }
     }
@@ -69,10 +69,14 @@ export function ReminderSettings() {
 
   return <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-4">
     <h2 className="font-bold text-sm text-tigf-magenta uppercase tracking-wider">Daily reminder</h2>
-    <p className="text-sm text-[var(--muted)]">A gentle nudge: “What are you grateful for today?” Choose a time in your device’s local time zone.</p>
+    <p className="text-sm text-[var(--muted)]">A gentle nudge: “What are you grateful for today?” Choose any hour in your device’s local time zone.</p>
     <label htmlFor="reminder-time" className="text-sm font-medium">Reminder time</label>
-    <input id="reminder-time" type="time" required value={time} onChange={e => setTime(e.target.value)}
-      className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 text-[var(--foreground)]" />
+    <select id="reminder-time" value={time} onChange={e => setTime(e.target.value)}
+      className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 text-[var(--foreground)]">
+      {Array.from({ length: 24 }, (_, hour) => <option key={hour} value={`${String(hour).padStart(2, '0')}:00`}>
+        {hour % 12 || 12}:00 {hour < 12 ? 'AM' : 'PM'}
+      </option>)}
+    </select>
     <p className="text-sm text-[var(--muted)]">{enabled ? 'Enabled on this device' : 'Off — enable when you’re ready'}</p>
     {!busy && !supported && <p className="text-sm">This browser does not support push notifications. On iPhone or iPad, add TIGF to your Home Screen and open it there.</p>}
     {!configured && <p className="text-sm">Daily reminders will be available once notification setup is complete.</p>}

@@ -1,16 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
-import webpush from 'web-push'
-import { isPushEndpoint } from '@/lib/utils/push'
+import { createClient } from 'npm:@supabase/supabase-js@2.108.1'
+// @deno-types="npm:@types/web-push@3.6.4"
+import webpush from 'npm:web-push@3.6.7'
+import { isPushEndpoint } from '../_shared/push.ts'
 
-export const runtime = 'nodejs'
-export const maxDuration = 60
-
-export async function GET(request: Request) {
-  if (!process.env.CRON_SECRET || request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+export async function handleReminderRequest(request: Request) {
+  const secret = Deno.env.get('REMINDER_CRON_SECRET')
+  if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const { NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key,
-    NEXT_PUBLIC_VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = process.env
+  if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405, headers: { Allow: 'POST' } })
+  const url = Deno.env.get('SUPABASE_URL')
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const publicKey = Deno.env.get('VAPID_PUBLIC_KEY')
+  const privateKey = Deno.env.get('VAPID_PRIVATE_KEY')
+  const subject = Deno.env.get('VAPID_SUBJECT')
   if (!url || !key || !publicKey || !privateKey || !subject) {
     return Response.json({ error: 'Reminder service is not configured' }, { status: 503 })
   }

@@ -106,7 +106,8 @@ create table public.push_reminders (
   endpoint text primary key,
   user_id uuid not null references public.profiles(id) on delete cascade,
   subscription jsonb not null,
-  time time not null default '18:00',
+  time time not null default '18:00' constraint push_reminders_whole_hour
+    check (extract(minute from time) = 0 and extract(second from time) = 0 and time < time '24:00'),
   timezone text not null default 'UTC' check (public.valid_reminder_timezone(timezone)),
   last_sent_date date
 );
