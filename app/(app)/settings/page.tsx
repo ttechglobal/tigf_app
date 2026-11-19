@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignOutButton } from './SignOutButton'
+import { AccountSection } from './AccountSection'
+import { DeleteAccount } from './DeleteAccount'
 import { ThemeToggleRow } from './ThemeToggleRow'
 import { ReminderSettings } from './ReminderSettings'
 
@@ -24,22 +26,7 @@ export default async function SettingsPage() {
         <p className="text-[var(--muted)] text-sm mt-1">Your account and preferences</p>
       </div>
 
-      {/* Account info */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-1">
-        <h2 className="font-bold text-sm text-tigf-magenta uppercase tracking-wider mb-2">
-          Account
-        </h2>
-        <div className="flex justify-between py-2 border-b border-[var(--border)]">
-          <span className="text-sm text-[var(--muted)]">Username</span>
-          <span className="text-sm font-medium text-[var(--foreground)]">
-            {profile?.username ?? '—'}
-          </span>
-        </div>
-        <div className="flex justify-between py-2">
-          <span className="text-sm text-[var(--muted)]">Email</span>
-          <span className="text-sm font-medium text-[var(--foreground)]">{user.email}</span>
-        </div>
-      </div>
+      <AccountSection username={profile?.username ?? ''} email={user.email ?? ''} />
 
       {/* Appearance */}
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-1">
@@ -52,6 +39,9 @@ export default async function SettingsPage() {
       {/* Sign out */}
       <ReminderSettings />
       <SignOutButton />
+      <div className="flex justify-center">
+        <DeleteAccount />
+      </div>
     </div>
   )
 }

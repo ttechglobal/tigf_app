@@ -42,3 +42,37 @@ export async function saveEntry(date: string, items: string[], timeZone = 'UTC')
   revalidatePath('/journal')
   return { entry: data }
 }
+
+/** Delete the signed-in user's entry for a date. */
+export async function deleteEntry(date: string) {
+  if (!isValidDate(date)) return { error: 'Invalid date.' }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { error } = await supabase.from('entries').delete().eq('user_id', user.id).eq('date', date)
+  if (error) {
+    console.error('deleteEntry failed', error)
+    return { error: 'Could not delete this entry. Please try again.' }
+  }
+  revalidatePath('/dashboard')
+  revalidatePath('/journal')
+  return { deleted: true }
+}
+
+/**
+ * Import an entry written while signed out. Never overwrites an entry the
+ * account already has for that date.
+ */
+export async function importGuestEntry(date: string, items: string[], timeZone = 'UTC') {
+  if (!isValidDate(date)) return { error: 'Invalid date.' }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: existing, error } = await supabase
+    .from('entries').select('id').eq('user_id', user.id).eq('date', date).maybeSingle()
+  if (error) return { error: 'Could not check your journal.' }
+  if (existing) return { skipped: true as const }
+  return saveEntry(date, items, timeZone)
+}

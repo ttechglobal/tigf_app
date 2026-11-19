@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { MIN_PASSWORD_LENGTH, USERNAME_PATTERN } from '@/lib/utils/limits'
+import { getSiteUrl } from '@/lib/utils/site-url'
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient()
@@ -24,10 +25,14 @@ export async function signUp(formData: FormData) {
   // trigger reads this and creates the profiles row server-side, with
   // superuser privileges. This works correctly regardless of whether
   // "Confirm email" is enabled (i.e. even before the user has a session).
+  const base = await getSiteUrl()
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { username } },
+    options: {
+      data: { username },
+      emailRedirectTo: base ? `${base}/auth/callback?next=/dashboard` : undefined,
+    },
   })
 
   if (error) {

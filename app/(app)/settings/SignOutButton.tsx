@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { logOut } from '@/lib/actions/auth'
-import { deleteReminder } from '@/lib/actions/reminders'
+import { removeThisDevicePush } from '@/lib/utils/push-client'
 
 /**
  * Signs out and first removes this device's push reminder, so the next person
@@ -14,16 +14,7 @@ export function SignOutButton() {
 
   function handleClick() {
     startTransition(async () => {
-      try {
-        const registration = await navigator.serviceWorker?.getRegistration()
-        const subscription = await registration?.pushManager.getSubscription()
-        if (subscription) {
-          const result = await deleteReminder(subscription.endpoint)
-          if (!result.error) await subscription.unsubscribe()
-        }
-      } catch {
-        // Best effort — never block signing out.
-      }
+      await removeThisDevicePush()
       await logOut()
     })
   }

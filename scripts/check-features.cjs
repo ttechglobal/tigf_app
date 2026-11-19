@@ -72,6 +72,54 @@ async function main() {
   assert.equal(result.entry.date, '2024-02-29')
   assert.equal(saved.user_id, 'user-a')
   assert.equal(JSON.stringify(saved.items), '["Family"]')
+  // Delete / import entries and account actions use a recording mock client.
+  const calls = []
+  let existingEntry = null
+  const chain = (name, result = { error: null }) => {
+    const q = {
+      eq(column, value) { calls.push([name, 'eq', column, value]); return q },
+      select() { return q },
+      maybeSingle: async () => ({ data: existingEntry, error: null }),
+      then(resolve) { resolve(result) },
+    }
+    return q
+  }
+  const client = {
+    auth: { getUser: async () => ({ data: { user: { id: 'user-a' } } }), signOut: async () => { calls.push(['signOut']) } },
+    rpc: async name => { calls.push(['rpc', name]); return { error: null } },
+    from: () => ({
+      delete: () => chain('delete'),
+      select: () => chain('select'),
+      update: values => { calls.push(['update', values]); return chain('update') },
+      upsert: row => ({ select: () => ({ single: async () => ({ data: row }) }) }),
+    }),
+  }
+  const actionMocks = {
+    'next/cache': { revalidatePath() {} }, 'next/navigation': { redirect(to) { throw Object.assign(Error('redirect'), { to }) } },
+    '@/lib/utils/date': date, '@/lib/utils/limits': limits,
+    '@/lib/supabase/server': { createClient: async () => client },
+    '@/lib/utils/site-url': { getSiteUrl: async () => 'https://tigf.test' },
+  }
+  const entryActions = load('lib/actions/entries.ts', actionMocks)
+  assert.ok((await entryActions.deleteEntry('not-a-date')).error)
+  assert.equal((await entryActions.deleteEntry('2024-02-29')).deleted, true)
+  assert.deepEqual(calls.filter(c => c[0] === 'delete').map(c => c.slice(2)), [['user_id', 'user-a'], ['date', '2024-02-29']])
+  existingEntry = { id: 'already-there' }
+  assert.equal((await entryActions.importGuestEntry('2024-02-29', ['x'], 'UTC')).skipped, true)
+  existingEntry = null
+  assert.ok((await entryActions.importGuestEntry('2024-02-29', ['x'], 'UTC')).entry)
+  assert.ok((await entryActions.importGuestEntry('2999-01-01', ['x'], 'UTC')).error)
+
+  const account = load('lib/actions/account.ts', actionMocks)
+  const form = values => ({ get: key => values[key] })
+  assert.ok((await account.updateUsername(form({ username: 'bad name' }))).error)
+  assert.ok((await account.updatePassword(form({ password: 'short', confirm: 'short' }))).error)
+  assert.ok((await account.updatePassword(form({ password: 'longenough1', confirm: 'different1' }))).error)
+  assert.ok((await account.deleteAccount('delete')).error)
+  assert.equal(calls.some(c => c[0] === 'rpc'), false)
+  await assert.rejects(account.deleteAccount('DELETE'), error => error.to === '/')
+  assert.deepEqual(calls.filter(c => c[0] === 'rpc'), [['rpc', 'delete_my_account']])
+
   let savedReminder
   const reminderActions = load('lib/actions/reminders.ts', {
     '@/lib/utils/push': push,

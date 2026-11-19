@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
-import { saveEntry } from '@/lib/actions/entries'
+import { saveEntry, deleteEntry } from '@/lib/actions/entries'
 import { useGuestEntry } from '@/hooks/useGuestEntry'
 import { MAX_ITEMS, MAX_ITEM_LENGTH } from '@/lib/utils/limits'
 import type { Entry } from '@/types'
@@ -22,6 +22,8 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [exists, setExists] = useState(Boolean(initialEntry))
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const updateItem = (i: number, v: string) => {
     setItems(prev => prev.map((item, idx) => (idx === i ? v : item)))
@@ -60,8 +62,25 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
         setError(result.error)
       } else {
         setSaved(true)
+        setExists(true)
         onSaved?.(filtered)
       }
+    })
+  }
+
+  const handleDelete = () => {
+    setError('')
+    startTransition(async () => {
+      const result = await deleteEntry(date)
+      if (result.error) {
+        setError(result.error)
+      } else {
+        setItems([''])
+        setSaved(false)
+        setExists(false)
+        onSaved?.([])
+      }
+      setConfirmingDelete(false)
     })
   }
 
@@ -126,6 +145,29 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
       <Button onClick={handleSave} loading={isPending} size="lg" className="w-full mt-1">
         {saved ? '✓ Saved!' : isPending ? 'Saving…' : 'Save entry'}
       </Button>
+
+      {!isGuest && exists && (
+        confirmingDelete ? (
+          <div role="alert" className="flex flex-col items-center gap-2 text-sm">
+            <p className="text-[var(--foreground)]">Delete this day’s entry permanently?</p>
+            <div className="flex gap-4">
+              <button type="button" onClick={handleDelete} disabled={isPending}
+                className="font-semibold text-red-600 hover:text-red-700 disabled:opacity-50">
+                Yes, delete
+              </button>
+              <button type="button" onClick={() => setConfirmingDelete(false)} disabled={isPending}
+                className="font-semibold text-[var(--muted)] hover:text-[var(--foreground)]">
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setConfirmingDelete(true)}
+            className="mx-auto text-sm font-semibold text-[var(--muted)] hover:text-red-500 transition-colors">
+            Delete this entry
+          </button>
+        )
+      )}
 
       {saved && isGuest && (
         <p className="text-center text-sm text-[var(--muted)]">

@@ -5,6 +5,7 @@ import { getTodayForRequest } from '@/lib/utils/request-date'
 import { EntryDatePicker } from '@/components/dashboard/EntryDatePicker'
 import { DashboardClient } from './DashboardClient'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
+import { GuestEntrySync } from '@/components/dashboard/GuestEntrySync'
 import { GratitudeVerse } from '@/components/dashboard/GratitudeVerse'
 import { DownloadAppButton } from '@/components/dashboard/DownloadAppButton'
 
@@ -24,6 +25,7 @@ export default async function DashboardPage({ searchParams }: {
   return (
     <div className="max-w-2xl mx-auto w-full px-4 pt-10 pb-12 flex flex-col gap-10">
       <DayChangeWatcher renderedDate={today} />
+      <GuestEntrySync />
 
 
       {/* Header */}
