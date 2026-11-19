@@ -9,6 +9,15 @@ No due reminders means no Edge Function call. Each invocation batches users.
 The 15-minute database ticks align whole local hours even in time zones with
 30- or 45-minute offsets. They also pick up retries and remaining batches.
 
+## Wording
+
+Each day's notification text comes from `supabase/functions/_shared/messages.ts`.
+The message follows the calendar day, so it changes every day and is the same on
+every device. Edit that list to change the wording, then redeploy with
+`supabase functions deploy daily-reminders --project-ref YOUR_PROJECT_REF --use-api`.
+In Settings, "Send a test notification" shows how a reminder looks on the device
+without involving the server.
+
 ## 1. Database
 
 Existing projects: run `supabase/migrations/20261030_daily_reminders.sql` in the

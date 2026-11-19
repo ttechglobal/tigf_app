@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.108.1'
 // @deno-types="npm:@types/web-push@3.6.4"
 import webpush from 'npm:web-push@3.6.7'
 import { isPushEndpoint } from '../_shared/push.ts'
+import { reminderMessage } from '../_shared/messages.ts'
 
 export async function handleReminderRequest(request: Request) {
   const secret = Deno.env.get('REMINDER_CRON_SECRET')
@@ -32,9 +33,9 @@ export async function handleReminderRequest(request: Request) {
           failed++
           return
         }
-        await webpush.sendNotification(reminder.subscription, JSON.stringify({
-          title: 'A moment of gratitude', body: 'What are you grateful for today?',
-        }), { TTL: 3600, timeout: 4000 })
+        // last_sent_date was set to the user's local date when the reminder was claimed.
+        await webpush.sendNotification(reminder.subscription, JSON.stringify(reminderMessage(reminder.last_sent_date)),
+          { TTL: 3600, timeout: 4000 })
         sent++
       } catch (error) {
         failed++

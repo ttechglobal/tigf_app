@@ -49,6 +49,22 @@ async function main() {
   assert.equal(limits.USERNAME_PATTERN.test('a'.repeat(31)), false)
   assert.equal(limits.USERNAME_PATTERN.test('good_name1'), true)
 
+  // Daily wording: never the same two days running, always a title and body.
+  const messages = load('supabase/functions/_shared/messages.ts')
+  const seen = new Set()
+  let previous
+  for (let day = 0; day < 60; day++) {
+    const date = new Date(Date.UTC(2026, 0, 1 + day)).toISOString().slice(0, 10)
+    const message = messages.reminderMessage(date)
+    assert.ok(message.title && message.body, date)
+    assert.notEqual(message.title, previous, `repeated on ${date}`)
+    previous = message.title
+    seen.add(message.title)
+  }
+  assert.ok(seen.size >= 8, 'enough variety')
+  assert.equal(messages.reminderMessage('2026-01-02').title, 'It’s Day 2') // day 2 % 10 picks the day-number message
+  assert.ok(messages.reminderMessage(null).title)
+
   let saved
   const entries = load('lib/actions/entries.ts', {
     'next/cache': { revalidatePath() {} },
@@ -216,6 +232,7 @@ async function main() {
       },
     },
     '../_shared/push.ts': push,
+    '../_shared/messages.ts': messages,
   }, { Deno: { env: { get: name => env[name] } } })
   function mutation(kind, values) {
     const record = { kind, values, filters: [] }
