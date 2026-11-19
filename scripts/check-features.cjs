@@ -43,9 +43,16 @@ async function main() {
     assert.equal(push.isPushEndpoint(endpoint), false, endpoint)
   }
 
+  const limits = load('lib/utils/limits.ts')
+  assert.equal(limits.USERNAME_PATTERN.test('ab'), false)
+  assert.equal(limits.USERNAME_PATTERN.test('bad name'), false)
+  assert.equal(limits.USERNAME_PATTERN.test('a'.repeat(31)), false)
+  assert.equal(limits.USERNAME_PATTERN.test('good_name1'), true)
+
   let saved
   const entries = load('lib/actions/entries.ts', {
     'next/cache': { revalidatePath() {} },
+    '@/lib/utils/limits': limits,
     '@/lib/utils/date': date,
     '@/lib/supabase/server': { createClient: async () => ({
       auth: { getUser: async () => ({ data: { user: { id: 'user-a' } } }) },
@@ -58,6 +65,8 @@ async function main() {
   assert.ok((await entries.saveEntry('2999-01-01', ['x'], 'UTC')).error)
   assert.ok((await entries.saveEntry('2026-02-30', ['x'], 'UTC')).error)
   assert.ok((await entries.saveEntry('2024-02-29', ['x'], 'Invalid/Zone')).error)
+  assert.ok((await entries.saveEntry('2024-02-29', Array(51).fill('x'), 'UTC')).error)
+  assert.ok((await entries.saveEntry('2024-02-29', ['x'.repeat(501)], 'UTC')).error)
   assert.equal(saved, undefined)
   const result = await entries.saveEntry('2024-02-29', ['  Family  ', ' '], 'Africa/Lagos')
   assert.equal(result.entry.date, '2024-02-29')

@@ -23,7 +23,7 @@ export function GuestDashboard({ date }: { date: string }) {
               Generate a 1080×1080 image to share — sign up to save it to your journal.
             </p>
           </div>
-          <CanvasRenderer items={savedItems} dayNumber={dayNumber} date={date} />
+          <CanvasRenderer key={JSON.stringify(savedItems)} items={savedItems} dayNumber={dayNumber} date={date} />
         </div>
       )}
     </div>

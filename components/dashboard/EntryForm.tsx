@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { saveEntry } from '@/lib/actions/entries'
 import { useGuestEntry } from '@/hooks/useGuestEntry'
+import { MAX_ITEMS, MAX_ITEM_LENGTH } from '@/lib/utils/limits'
 import type { Entry } from '@/types'
 
 interface EntryFormProps {
@@ -28,7 +29,7 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
   }
 
   const addItem = () => {
-    setItems(prev => [...prev, ''])
+    setItems(prev => (prev.length >= MAX_ITEMS ? prev : [...prev, '']))
     setSaved(false)
   }
 
@@ -81,6 +82,8 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
                 addItem()
               }
             }}
+            maxLength={MAX_ITEM_LENGTH}
+            aria-label={`Grateful item ${i + 1}`}
             placeholder="I'm grateful for…"
             autoFocus={i === items.length - 1 && items.length > 1}
             className="

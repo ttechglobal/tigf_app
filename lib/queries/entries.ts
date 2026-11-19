@@ -10,12 +10,14 @@ import type { Entry } from '@/types'
 export async function getAllEntries(userId: string): Promise<Entry[]> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('entries')
     .select('*')
     .eq('user_id', userId)
     .order('date', { ascending: true })
 
+  // Throw instead of returning [] so a failed query never looks like an empty journal.
+  if (error) throw new Error('Could not load your journal. Please try again.')
   if (!data) return []
 
   return (data as Entry[]).map(entry => ({

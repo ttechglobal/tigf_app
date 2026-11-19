@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getTodayEntry } from '@/lib/queries/entries'
-import { todayISO, formatDateDisplay, isValidDate, todayInTimezone } from '@/lib/utils/date'
+import { formatDateDisplay, isValidDate } from '@/lib/utils/date'
+import { getTodayForRequest } from '@/lib/utils/request-date'
 import { EntryDatePicker } from '@/components/dashboard/EntryDatePicker'
 import { DashboardClient } from './DashboardClient'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
@@ -8,14 +9,13 @@ import { GratitudeVerse } from '@/components/dashboard/GratitudeVerse'
 import { DownloadAppButton } from '@/components/dashboard/DownloadAppButton'
 
 export default async function DashboardPage({ searchParams }: {
-  searchParams: Promise<{ date?: string; tz?: string }>
+  searchParams: Promise<{ date?: string }>
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const query = await searchParams
-  let today = todayISO()
-  try { if (query.tz) today = todayInTimezone(query.tz) } catch {}
+  const today = await getTodayForRequest()
   const date = query.date && isValidDate(query.date) && query.date <= today ? query.date : today
   const { entry, dayNumber } = user
     ? await getTodayEntry(user.id, date)

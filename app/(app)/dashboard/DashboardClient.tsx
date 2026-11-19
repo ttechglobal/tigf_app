@@ -33,7 +33,8 @@ export function DashboardClient({ date, initialEntry, dayNumber }: Props) {
               Generate a shareable image for Day {dayNumber}
             </p>
           </div>
-          <CanvasRenderer items={savedItems} dayNumber={dayNumber} date={date} />
+          {/* Keyed on content so an edited entry never shows or downloads a stale image */}
+          <CanvasRenderer key={JSON.stringify(savedItems)} items={savedItems} dayNumber={dayNumber} date={date} />
         </div>
       )}
     </>

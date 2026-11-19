@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isValidDate, todayInTimezone } from '@/lib/utils/date'
+import { MAX_ITEMS, MAX_ITEM_LENGTH } from '@/lib/utils/limits'
 
 /**
  * Save (or update) a gratitude entry for today or a past date.
@@ -18,6 +19,10 @@ export async function saveEntry(date: string, items: string[], timeZone = 'UTC')
 
   const filtered = items.map(i => i.trim()).filter(Boolean)
   if (filtered.length === 0) return { error: 'Add at least one thing.' }
+  if (filtered.length > MAX_ITEMS) return { error: `You can add up to ${MAX_ITEMS} things per day.` }
+  if (filtered.some(i => i.length > MAX_ITEM_LENGTH)) {
+    return { error: `Each item can be up to ${MAX_ITEM_LENGTH} characters.` }
+  }
 
   const { data, error } = await supabase
     .from('entries')
@@ -28,7 +33,10 @@ export async function saveEntry(date: string, items: string[], timeZone = 'UTC')
     .select()
     .single()
 
-  if (error) return { error: error.message }
+  if (error) {
+    console.error('saveEntry failed', error)
+    return { error: 'Could not save your entry. Please try again.' }
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/journal')

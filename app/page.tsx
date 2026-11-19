@@ -5,14 +5,14 @@ import { GuestBanner } from '@/components/layout/GuestBanner'
 import { GuestDashboard } from '@/components/dashboard/GuestDashboard'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
 import { InstallPrompt } from '@/components/layout/InstallPrompt'
-import { todayISO } from '@/lib/utils/date'
+import { getTodayForRequest } from '@/lib/utils/request-date'
 
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
 
-  const today = todayISO()
+  const today = await getTodayForRequest()
 
   return (
     <div className="flex flex-col">

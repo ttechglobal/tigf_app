@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 
 export default function GlobalError({
   error,
@@ -20,8 +21,9 @@ export default function GlobalError({
         <div>
           <h1 className="text-xl font-bold text-[var(--foreground)]">Something went wrong</h1>
           <p className="text-sm text-[var(--muted)] mt-2">
-            {error.message || 'An unexpected error occurred.'}
+            We couldn’t load this page. Please try again in a moment.
           </p>
+          {error.digest && <p className="text-xs text-[var(--muted)] mt-2">Reference: {error.digest}</p>}
         </div>
         <div className="flex gap-3">
           <button
@@ -30,12 +32,12 @@ export default function GlobalError({
           >
             Try again
           </button>
-          <a
+          <Link
             href="/"
             className="border-2 border-[var(--border)] text-[var(--muted)] font-semibold px-5 py-2.5 rounded-xl hover:border-tigf-magenta hover:text-tigf-magenta transition-colors text-sm"
           >
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

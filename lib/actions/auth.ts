@@ -3,16 +3,21 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { MIN_PASSWORD_LENGTH, USERNAME_PATTERN } from '@/lib/utils/limits'
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const username = (formData.get('username') as string)?.trim()
+  const email = String(formData.get('email') ?? '').trim()
+  const password = String(formData.get('password') ?? '')
+  const username = String(formData.get('username') ?? '').trim()
 
-  if (!username || username.length < 3) {
-    return { error: 'Username must be at least 3 characters.' }
+  if (!USERNAME_PATTERN.test(username)) {
+    return { error: 'Username must be 3–30 characters: letters, numbers and underscores only.' }
+  }
+  if (!email) return { error: 'Enter your email address.' }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` }
   }
 
   // Pass username as user_metadata — the on_auth_user_created Postgres

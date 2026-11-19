@@ -4,6 +4,7 @@ import { TopHeader } from '@/components/layout/TopHeader'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
+import { TimezoneSync } from '@/components/TimezoneSync'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="antialiased min-h-screen">
         <ServiceWorkerRegister />
+        <TimezoneSync />
         <TopHeader user={user} />
         <main>
           {children}

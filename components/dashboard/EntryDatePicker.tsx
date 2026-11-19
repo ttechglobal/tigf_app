@@ -1,18 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export function EntryDatePicker({ date, today }: { date: string; today: string }) {
   const router = useRouter()
-  useEffect(() => {
-    const url = new URL(window.location.href)
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    if (url.searchParams.get('tz') !== tz) {
-      url.searchParams.set('tz', tz)
-      router.replace(url.pathname + url.search)
-    }
-  }, [router])
   function select(value: string) {
     if (!value || value > today) return
     const url = new URL(window.location.href)

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { logOut } from '@/lib/actions/auth'
+import { SignOutButton } from './SignOutButton'
 import { ThemeToggleRow } from './ThemeToggleRow'
 import { ReminderSettings } from './ReminderSettings'
 
@@ -51,14 +51,7 @@ export default async function SettingsPage() {
 
       {/* Sign out */}
       <ReminderSettings />
-      <form action={logOut}>
-        <button
-          type="submit"
-          className="w-full text-center text-sm font-semibold text-red-500 hover:text-red-600 transition-colors py-3 rounded-xl border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-900/10"
-        >
-          Sign out
-        </button>
-      </form>
+      <SignOutButton />
     </div>
   )
 }

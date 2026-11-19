@@ -6,16 +6,26 @@
 -- Profiles table (extends auth.users)
 create table public.profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
-  username    text unique not null check (length(username) >= 3 and username ~ '^[a-zA-Z0-9_]+$'),
+  username    text unique not null check (char_length(username) between 3 and 30 and username ~ '^[a-zA-Z0-9_]+$'),
   created_at  timestamptz default now()
 );
+
+-- 1-50 items per entry, each 1-500 characters (matches lib/utils/limits.ts)
+create or replace function public.valid_entry_items(items text[])
+returns boolean language sql immutable set search_path = '' as $$
+  select coalesce(array_length(items, 1), 0) between 1 and 50
+    and not exists (
+      select 1 from unnest(items) as i(item)
+      where item is null or char_length(item) not between 1 and 500
+    );
+$$;
 
 -- Entries table — one row per user per day
 create table public.entries (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references public.profiles(id) on delete cascade,
   date         date not null,
-  items        text[] not null default '{}',
+  items        text[] not null default '{}' constraint entries_items_valid check (public.valid_entry_items(items)),
   created_at   timestamptz default now(),
   updated_at   timestamptz default now(),
   unique(user_id, date)
