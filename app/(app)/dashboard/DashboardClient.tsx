@@ -30,7 +30,7 @@ export function DashboardClient({ date, initialEntry, dayNumber }: Props) {
           <div>
             <h2 className="font-bold text-[var(--foreground)]">Share your gratitude</h2>
             <p className="text-sm text-[var(--muted)] mt-0.5">
-              Generate a shareable image for Day {dayNumber}
+              Download or share your Day {dayNumber} image
             </p>
           </div>
           {/* Keyed on content so an edited entry never shows or downloads a stale image */}

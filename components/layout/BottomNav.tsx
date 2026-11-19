@@ -27,7 +27,7 @@ export function BottomNav({ user }: BottomNavProps) {
   if (!user) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--background)]/95 backdrop-blur-sm border-t border-[var(--border)] safe-bottom">
+    <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--background)]/95 backdrop-blur-sm border-t border-[var(--border)] safe-bottom">
       <div className="max-w-md mx-auto flex">
         {NAV.map(({ href, label, Icon }) => {
           const active = pathname === href
@@ -35,6 +35,7 @@ export function BottomNav({ user }: BottomNavProps) {
             <Link
               key={href}
               href={href}
+              aria-current={active ? 'page' : undefined}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5"
             >
               <span
@@ -57,6 +58,6 @@ export function BottomNav({ user }: BottomNavProps) {
           )
         })}
       </div>
-    </div>
+    </nav>
   )
 }

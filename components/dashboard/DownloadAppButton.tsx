@@ -44,10 +44,10 @@ export function DownloadAppButton() {
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={handleClick}
-        className="inline-flex items-center gap-2 bg-tigf-magenta text-white font-semibold px-6 py-3 rounded-xl hover:bg-tigf-magenta-dark transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-tigf-magenta font-semibold px-4 py-2 rounded-xl hover:bg-tigf-magenta/10 transition-colors"
       >
-        <Download size={18} />
-        Download the app
+        <Download size={16} />
+        Install the app
       </button>
 
       {showIOSHint && (

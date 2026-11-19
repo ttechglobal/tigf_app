@@ -12,7 +12,7 @@ export function TopHeader({ user }: TopHeaderProps) {
   const { theme, toggle, mounted } = useTheme()
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm">
+    <nav aria-label="Account" className="sticky top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur-sm">
       <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href={user ? '/dashboard' : '/'} className="shrink-0 flex items-center h-7">
           {/* eslint-disable-next-line @next/next/no-img-element */}

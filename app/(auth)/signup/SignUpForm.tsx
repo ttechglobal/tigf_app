@@ -69,7 +69,7 @@ export function SignUpForm() {
           <Input label="Email" name="email" type="email" placeholder="you@example.com" required autoComplete="email" />
           <Input label="Password" name="password" type="password" placeholder="At least 8 characters"
             required minLength={8} autoComplete="new-password" />
-          {error && <p className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">{error}</p>}
           <Button type="submit" loading={loading} size="lg" className="w-full mt-2">Create account</Button>
         </form>
         <p className="text-center text-sm text-[var(--muted)]">

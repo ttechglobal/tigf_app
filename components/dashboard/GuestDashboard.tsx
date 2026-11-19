@@ -20,7 +20,7 @@ export function GuestDashboard({ date }: { date: string }) {
           <div>
             <h2 className="font-bold text-[var(--foreground)]">Your gratitude image</h2>
             <p className="text-sm text-[var(--muted)] mt-0.5">
-              Generate a 1080×1080 image to share — sign up to save it to your journal.
+              Your 1080×1080 image is ready to share — sign up to save it to your journal.
             </p>
           </div>
           <CanvasRenderer key={JSON.stringify(savedItems)} items={savedItems} dayNumber={dayNumber} date={date} />

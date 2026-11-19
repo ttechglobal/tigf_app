@@ -1,5 +1,6 @@
 import { getUser } from '@/lib/supabase/user'
-import { getTodayEntry } from '@/lib/queries/entries'
+import { getTodayEntry, getEntryDates } from '@/lib/queries/entries'
+import { computeStreaks } from '@/lib/utils/streak'
 import { formatDateDisplay, isValidDate } from '@/lib/utils/date'
 import { getTodayForRequest } from '@/lib/utils/request-date'
 import { EntryDatePicker } from '@/components/dashboard/EntryDatePicker'
@@ -17,9 +18,10 @@ export default async function DashboardPage({ searchParams }: {
   const query = await searchParams
   const today = await getTodayForRequest()
   const date = query.date && isValidDate(query.date) && query.date <= today ? query.date : today
-  const { entry, dayNumber } = user
-    ? await getTodayEntry(user.id, date)
-    : { entry: null, dayNumber: 1 }
+  const [{ entry, dayNumber }, entryDates] = user
+    ? await Promise.all([getTodayEntry(user.id, date), getEntryDates(user.id)])
+    : [{ entry: null, dayNumber: 1 }, [] as string[]]
+  const streak = computeStreaks(entryDates, today).current
 
   return (
     <div className="max-w-2xl mx-auto w-full px-4 pt-10 pb-12 flex flex-col gap-10">
@@ -35,11 +37,16 @@ export default async function DashboardPage({ searchParams }: {
         <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--foreground)]">
           WHAT ARE YOU GRATEFUL FOR?
         </h1>
-        <div className="flex items-center justify-center gap-2 mt-1 mb-4">
+        <div className="flex items-center justify-center gap-2 mt-1 mb-4 flex-wrap">
           <span className="text-[var(--muted)] text-sm">{date === today ? 'Today is' : 'You’re writing for'}</span>
           <span className="bg-tigf-magenta text-white font-bold text-sm px-3 py-1 rounded-full">
             Day {dayNumber}
           </span>
+          {streak > 0 && (
+            <span className="border border-tigf-magenta/30 text-tigf-magenta font-semibold text-sm px-3 py-1 rounded-full">
+              🔥 {streak}-day streak
+            </span>
+          )}
         </div>
 
         <GratitudeVerse />
@@ -49,9 +56,7 @@ export default async function DashboardPage({ searchParams }: {
       <EntryDatePicker date={date} today={today} />
       <DashboardClient key={date} date={date} initialEntry={entry} dayNumber={dayNumber} />
 
-        <div>
-          <DownloadAppButton />
-        </div>
+      <DownloadAppButton />
     </div>
   )
 }

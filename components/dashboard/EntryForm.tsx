@@ -137,8 +137,10 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
         Add another
       </button>
 
+      <p role="status" className="sr-only">{saved ? 'Entry saved.' : ''}</p>
+
       {error && (
-        <p className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">
+        <p role="alert" className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">
           {error}
         </p>
       )}

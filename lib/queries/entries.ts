@@ -26,6 +26,14 @@ export async function getAllEntries(userId: string): Promise<Entry[]> {
   }))
 }
 
+/** Just the dates of every entry — cheap enough to use for streaks. */
+export async function getEntryDates(userId: string): Promise<string[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('entries').select('date').eq('user_id', userId)
+  if (error) return [] // The streak chip is optional; never block the page on it.
+  return (data ?? []).map(row => row.date as string)
+}
+
 /**
  * Get today's entry (if it exists) plus today's calendar day-of-year.
  */

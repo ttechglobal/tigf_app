@@ -120,6 +120,15 @@ async function main() {
   await assert.rejects(account.deleteAccount('DELETE'), error => error.to === '/')
   assert.deepEqual(calls.filter(c => c[0] === 'rpc'), [['rpc', 'delete_my_account']])
 
+  // Streaks: a missing today doesn't break the run, a missing yesterday does.
+  const { computeStreaks } = load('lib/utils/streak.ts')
+  assert.deepEqual({ ...computeStreaks([], '2026-11-19') }, { current: 0, longest: 0, total: 0 })
+  assert.deepEqual({ ...computeStreaks(['2026-11-17', '2026-11-18', '2026-11-19'], '2026-11-19') }, { current: 3, longest: 3, total: 3 })
+  assert.equal(computeStreaks(['2026-11-17', '2026-11-18'], '2026-11-19').current, 2)
+  assert.equal(computeStreaks(['2026-11-16', '2026-11-17'], '2026-11-19').current, 0)
+  assert.equal(computeStreaks(['2026-12-30', '2026-12-31', '2027-01-01', '2027-01-01'], '2027-01-01').current, 3)
+  assert.equal(computeStreaks(['2024-02-28', '2024-02-29', '2024-03-01', '2024-03-05'], '2024-03-05').longest, 3)
+
   // Guest entries on this device: corrupt or malformed storage is ignored, never thrown.
   const store = {}
   const guest = load('lib/utils/guest.ts', { '@/lib/utils/date': date }, {
