@@ -53,14 +53,14 @@ export function DownloadAppButton() {
       {showIOSHint && (
         <p className="flex items-center gap-1.5 text-xs text-[var(--muted)] text-center max-w-xs">
           <Share2 size={14} className="shrink-0" />
-          Tap the Share button in Safari, then "Add to Home Screen"
+          Tap the Share button in Safari, then &ldquo;Add to Home Screen&rdquo;
         </p>
       )}
 
       {showWaitHint && (
         <p className="text-xs text-[var(--muted)] text-center max-w-xs">
-          Your browser hasn't offered install yet — try reloading the page,
-          or use your browser menu and look for "Install app" / "Add to Home Screen".
+          Your browser hasn&apos;t offered install yet — try reloading the page,
+          or use your browser menu and look for &ldquo;Install app&rdquo; / &ldquo;Add to Home Screen&rdquo;.
         </p>
       )}
     </div>

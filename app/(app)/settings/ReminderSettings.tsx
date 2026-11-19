@@ -17,7 +17,8 @@ export function ReminderSettings() {
       const available = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
       setSupported(available)
       if (!available) return
-      const registration = await navigator.serviceWorker.register('/sw.js')
+      // Registered once, globally, by ServiceWorkerRegister.
+      const registration = await navigator.serviceWorker.ready
       const subscription = await registration.pushManager.getSubscription()
       if (subscription) {
         const result = await getReminder(subscription.endpoint)

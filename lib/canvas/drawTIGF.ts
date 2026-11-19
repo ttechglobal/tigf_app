@@ -17,6 +17,17 @@ const BRAND = {
   white: '#FFFFFF', subText: '#888080',
 }
 
+/**
+ * Font family lists for the canvas. next/font self-hosts the fonts under
+ * generated family names and exposes them as CSS variables on <html>, so read
+ * those; fall back to the plain names if the variables aren't present.
+ */
+function fontFamilies() {
+  const style = typeof document !== 'undefined' ? getComputedStyle(document.documentElement) : null
+  const read = (variable: string, fallback: string) => style?.getPropertyValue(variable).trim() || `'${fallback}'`
+  return { display: read('--font-fredoka', 'Fredoka'), body: read('--font-open-sans', 'Open Sans') }
+}
+
 // Draw text with manual letter spacing (ctx.letterSpacing has patchy support)
 function spacedText(
   ctx: CanvasRenderingContext2D,
@@ -113,7 +124,16 @@ function wrapText(
   const words = text.split(' ')
   const lines: string[] = []
   let cur = ''
-  for (const w of words) {
+  for (const original of words) {
+    // A single word wider than the line (no spaces to wrap on) is split by characters.
+    let w = original
+    while (ctx.measureText(w).width > maxWidth && w.length > 1) {
+      let n = w.length - 1
+      while (n > 1 && ctx.measureText(w.slice(0, n)).width > maxWidth) n--
+      if (cur) { lines.push(cur); cur = '' }
+      lines.push(w.slice(0, n))
+      w = w.slice(n)
+    }
     const test = cur ? `${cur} ${w}` : w
     if (ctx.measureText(test).width > maxWidth && cur) {
       lines.push(cur); cur = w
@@ -126,6 +146,7 @@ function wrapText(
 export function drawTIGF(config: DrawConfig) {
   const { ctx, items, dayNumber, date, handle = 'TIGF · tigf.app' } = config
   const c = BRAND
+  const F = fontFamilies()
   const S = 1080
   const PAD = 72
 
@@ -141,7 +162,7 @@ export function drawTIGF(config: DrawConfig) {
   // ── Header: "WHAT ARE YOU GRATEFUL FOR?" ─────────────────
   ctx.save()
   ctx.fillStyle = c.headerText
-  ctx.font = `500 34px 'Fredoka', Arial, sans-serif`
+  ctx.font = `500 34px ${F.display}, Arial, sans-serif`
   spacedText(ctx, 'WHAT ARE YOU GRATEFUL FOR?', S / 2, 90, 7, 'center')
   ctx.restore()
 
@@ -153,7 +174,7 @@ export function drawTIGF(config: DrawConfig) {
   // ── DAY N (top right) ────────────────────────────────────
   ctx.save()
   ctx.fillStyle = c.magenta
-  ctx.font = `600 44px 'Fredoka', Arial, sans-serif`
+  ctx.font = `600 44px ${F.display}, Arial, sans-serif`
   ctx.textAlign = 'right'
   spacedText(ctx, `DAY ${dayNumber}`, S - PAD, 240, 3, 'right')
   ctx.restore()
@@ -161,7 +182,7 @@ export function drawTIGF(config: DrawConfig) {
   // ── Date under logo ──────────────────────────────────────
   ctx.save()
   ctx.fillStyle = c.magenta
-  ctx.font = `500 24px 'Fredoka', Arial, sans-serif`
+  ctx.font = `500 24px ${F.display}, Arial, sans-serif`
   spacedText(ctx, formatDateDisplay(date), PAD + 22, logoY + logoHeight + 69, 4, 'left')
   ctx.restore()
 
@@ -174,16 +195,13 @@ export function drawTIGF(config: DrawConfig) {
   const cardR = 28
 
   // Badge sits centered on the card's top edge, fused into one shape
-  const badgeCX = S / 2
-  const badgeCY = cardY // center of badge sits exactly on the card's top edge
+  const badgeCX = S / 2 // the badge's center sits exactly on the card's top edge (cardY)
 
   ctx.save()
-  ctx.font = `400 32px 'Fredoka', Arial, sans-serif`
+  ctx.font = `400 32px ${F.display}, Arial, sans-serif`
 
   const leftText = "Today, I'm"
   const rightText = 'Grateful For:'
-  const lW = ctx.measureText(leftText).width
-  const rW = ctx.measureText(rightText).width
   const gap = 30
 
   ctx.fillStyle = c.headerText
@@ -233,7 +251,7 @@ export function drawTIGF(config: DrawConfig) {
   // Badge number, drawn after the fused shape so it sits on top
   ctx.save()
   ctx.fillStyle = c.white
-  ctx.font = `600 48px 'Fredoka', Arial, sans-serif`
+  ctx.font = `600 48px ${F.display}, Arial, sans-serif`
   ctx.textAlign = 'center'
   const badgeVisibleMidY = (cardY - badgeR + cardY) / 2
   ctx.fillText(String(dayNumber), badgeCX, badgeVisibleMidY + 20)
@@ -249,8 +267,8 @@ export function drawTIGF(config: DrawConfig) {
   // Build the wrapped line list for a given font size, returning both the
   // lines and the total height they'd take up — so we can test-fit before committing.
   function layoutAtSize(fontSize: number): { lines: Line[]; totalH: number; numberColW: number } {
-    const font = `400 ${fontSize}px 'Open Sans', Arial, sans-serif`
-    const numberFont = `600 ${fontSize}px 'Open Sans', Arial, sans-serif`
+    const font = `400 ${fontSize}px ${F.body}, Arial, sans-serif`
+    const numberFont = `600 ${fontSize}px ${F.body}, Arial, sans-serif`
     const lineH = fontSize * 1.5
 
     ctx.font = numberFont
@@ -284,8 +302,8 @@ export function drawTIGF(config: DrawConfig) {
 
   const { lines: allLines, totalH: totalTextH, numberColW } = layout
   const lineH = fontSize * 1.5
-  const itemFont = `400 ${fontSize}px 'Open Sans', Arial, sans-serif`
-  const numberFont = `600 ${fontSize}px 'Open Sans', Arial, sans-serif`
+  const itemFont = `400 ${fontSize}px ${F.body}, Arial, sans-serif`
+  const numberFont = `600 ${fontSize}px ${F.body}, Arial, sans-serif`
 
   ctx.save()
   ctx.fillStyle = c.white
@@ -333,7 +351,7 @@ export function drawTIGF(config: DrawConfig) {
   // ── Bottom handle ────────────────────────────────────────
   ctx.save()
   ctx.fillStyle = c.subText
-  ctx.font = `400 21px 'Fredoka', Arial, sans-serif`
+  ctx.font = `400 21px ${F.display}, Arial, sans-serif`
   ctx.textAlign = 'center'
   ctx.fillText(handle, S / 2, S - 30)
   ctx.restore()
@@ -342,13 +360,14 @@ export function drawTIGF(config: DrawConfig) {
 export async function ensureFontsLoaded(): Promise<void> {
   if (typeof document === 'undefined') return
   try {
+    const F = fontFamilies()
     await Promise.all([
-      document.fonts.load("400 16px 'Open Sans'"),
-      document.fonts.load("600 16px 'Open Sans'"),
-      document.fonts.load("700 16px 'Open Sans'"),
-      document.fonts.load("400 16px 'Fredoka'"),
-      document.fonts.load("500 16px 'Fredoka'"),
-      document.fonts.load("600 16px 'Fredoka'"),
+      document.fonts.load(`400 16px ${F.body}`),
+      document.fonts.load(`600 16px ${F.body}`),
+      document.fonts.load(`700 16px ${F.body}`),
+      document.fonts.load(`400 16px ${F.display}`),
+      document.fonts.load(`500 16px ${F.display}`),
+      document.fonts.load(`600 16px ${F.display}`),
       loadLogoImage(),
     ])
   } catch { /* fall back to Arial; logo will simply not draw if it fails */ }

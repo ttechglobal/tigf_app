@@ -1,10 +1,12 @@
-// Minimal service worker — just enough to make the browser consider
-// this app "installable" as a PWA. Not doing heavy offline caching
-// since this app needs a live network connection to Supabase anyway.
+// TIGF service worker: push reminders, plus a friendly offline page for
+// navigations. Everything else goes straight to the network untouched
+// (the app needs a live connection to Supabase anyway).
 
-const CACHE_NAME = 'tigf-v1'
+const CACHE_NAME = 'tigf-v2'
+const OFFLINE_URL = '/offline.html'
 
-self.addEventListener('install', () => {
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.add(OFFLINE_URL)))
   self.skipWaiting()
 })
 
@@ -12,12 +14,13 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   )
 })
 
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {}
+  let data = {}
+  try { data = event.data ? event.data.json() : {} } catch { /* malformed payload */ }
   event.waitUntil(self.registration.showNotification(data.title || 'A moment of gratitude', {
     body: data.body || 'What are you grateful for today?',
     icon: '/icon-192.png', tag: 'tigf-daily-reminder',
@@ -39,10 +42,11 @@ self.addEventListener('notificationclick', (event) => {
   })())
 })
 
-// Network-first: always try the network, only used so the browser
-// recognizes an active service worker (required for "Add to Home Screen").
+// Only page navigations are intercepted, and only to show the offline page
+// when the network is unreachable.
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode !== 'navigate') return
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request).catch(async () => (await caches.match(OFFLINE_URL)) || Response.error())
   )
 })

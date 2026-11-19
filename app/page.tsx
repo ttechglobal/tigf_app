@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import { GuestBanner } from '@/components/layout/GuestBanner'
 import { GuestDashboard } from '@/components/dashboard/GuestDashboard'
@@ -8,8 +8,7 @@ import { InstallPrompt } from '@/components/layout/InstallPrompt'
 import { getTodayForRequest } from '@/lib/utils/request-date'
 
 export default async function HomePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (user) redirect('/dashboard')
 
   const today = await getTodayForRequest()

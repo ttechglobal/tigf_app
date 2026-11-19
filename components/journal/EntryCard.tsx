@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { formatDateLong } from '@/lib/utils/date'
 import type { Entry } from '@/types'
 
@@ -19,7 +20,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
           </li>
         ))}
       </ul>
-      <a href={`/dashboard?date=${entry.date}`} className="text-sm font-semibold text-tigf-magenta">Edit entry →</a>
+      <Link href={`/dashboard?date=${entry.date}`} className="text-sm font-semibold text-tigf-magenta">Edit entry →</Link>
     </div>
   )
 }

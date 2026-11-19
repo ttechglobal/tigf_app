@@ -1,28 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
+
+type Theme = 'light' | 'dark'
+
+const THEME_EVENT = 'tigf-theme-change'
+
+// The inline script in app/layout.tsx sets the `dark` class before hydration,
+// so the DOM class is the source of truth and React just subscribes to it.
+function subscribe(callback: () => void) {
+  window.addEventListener(THEME_EVENT, callback)
+  window.addEventListener('storage', callback)
+  return () => {
+    window.removeEventListener(THEME_EVENT, callback)
+    window.removeEventListener('storage', callback)
+  }
+}
+
+const getSnapshot = (): Theme => (document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+const getServerSnapshot = (): Theme => 'light'
+
+const subscribeNever = () => () => {}
 
 export function useTheme() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    const stored = localStorage.getItem('tigf-theme')
-    if (stored === 'dark' || stored === 'light') {
-      setTheme(stored)
-      document.documentElement.classList.toggle('dark', stored === 'dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark')
-      document.documentElement.classList.add('dark')
-    }
-  }, [])
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  // False during server render and hydration, true afterwards.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false)
 
   const toggle = () => {
-    const next = theme === 'light' ? 'dark' : 'light'
-    setTheme(next)
-    localStorage.setItem('tigf-theme', next)
+    const next: Theme = theme === 'light' ? 'dark' : 'light'
+    try { localStorage.setItem('tigf-theme', next) } catch { /* private mode */ }
     document.documentElement.classList.toggle('dark', next === 'dark')
+    window.dispatchEvent(new Event(THEME_EVENT))
   }
 
   return { theme, toggle, mounted }

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/user'
 import { getTodayEntry } from '@/lib/queries/entries'
 import { formatDateDisplay, isValidDate } from '@/lib/utils/date'
 import { getTodayForRequest } from '@/lib/utils/request-date'
@@ -12,8 +12,7 @@ import { DownloadAppButton } from '@/components/dashboard/DownloadAppButton'
 export default async function DashboardPage({ searchParams }: {
   searchParams: Promise<{ date?: string }>
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   const query = await searchParams
   const today = await getTodayForRequest()

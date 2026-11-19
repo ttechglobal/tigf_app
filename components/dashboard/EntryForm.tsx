@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { saveEntry, deleteEntry } from '@/lib/actions/entries'
 import { useGuestEntry } from '@/hooks/useGuestEntry'
@@ -172,9 +173,9 @@ export function EntryForm({ date, initialEntry, isGuest, onSaved }: EntryFormPro
       {saved && isGuest && (
         <p className="text-center text-sm text-[var(--muted)]">
           Saved on this device only.{' '}
-          <a href="/signup" className="text-tigf-magenta font-semibold hover:underline">
+          <Link href="/signup" className="text-tigf-magenta font-semibold hover:underline">
             Sign up to sync →
-          </a>
+          </Link>
         </p>
       )}
     </div>

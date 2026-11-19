@@ -120,6 +120,54 @@ async function main() {
   await assert.rejects(account.deleteAccount('DELETE'), error => error.to === '/')
   assert.deepEqual(calls.filter(c => c[0] === 'rpc'), [['rpc', 'delete_my_account']])
 
+  // Guest entries on this device: corrupt or malformed storage is ignored, never thrown.
+  const store = {}
+  const guest = load('lib/utils/guest.ts', { '@/lib/utils/date': date }, {
+    localStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = v }, removeItem: k => { delete store[k] } },
+  })
+  assert.equal(guest.readGuestEntry(), null)
+  guest.writeGuestEntry({ date: '2026-01-05', items: ['Family'] })
+  assert.equal(JSON.stringify(guest.readGuestEntry()), '{"date":"2026-01-05","items":["Family"]}')
+  for (const bad of ['{not json', '{"date":"2026-02-30","items":["x"]}', '{"date":"2026-01-05","items":[]}',
+    '{"date":"2026-01-05","items":[1]}', 'null']) {
+    store[guest.GUEST_KEY] = bad
+    assert.equal(guest.readGuestEntry(), null, bad)
+  }
+  guest.writeGuestEntry({ date: '2026-01-05', items: ['x'] })
+  guest.clearGuestEntry()
+  assert.equal(guest.readGuestEntry(), null)
+
+  // Sign-up validation happens on the server, before Supabase is contacted.
+  const signUps = []
+  const authActions = load('lib/actions/auth.ts', {
+    ...actionMocks,
+    '@/lib/supabase/server': { createClient: async () => ({ auth: {
+      signUp: async args => { signUps.push(args); return { data: { user: { id: 'u' }, session: null }, error: null } },
+    } }) },
+  })
+  const signUpForm = values => ({ get: key => values[key] })
+  for (const bad of [
+    { username: 'ab', email: 'a@b.co', password: 'longenough1' },
+    { username: 'has space', email: 'a@b.co', password: 'longenough1' },
+    { username: 'good_name', email: '', password: 'longenough1' },
+    { username: 'good_name', email: 'a@b.co', password: 'short' },
+  ]) {
+    assert.ok((await authActions.signUp(signUpForm(bad))).error, JSON.stringify(bad))
+  }
+  assert.equal(signUps.length, 0)
+  const signedUp = await authActions.signUp(signUpForm({ username: 'good_name', email: 'a@b.co', password: 'longenough1' }))
+  assert.equal(signedUp.needsConfirmation, true)
+  assert.equal(signUps[0].options.emailRedirectTo, 'https://tigf.test/auth/callback?next=/dashboard')
+
+  // The proxy skips static and PWA files so they don't trigger a session lookup.
+  const proxySource = fs.readFileSync('proxy.ts', 'utf8')
+  const matcherLine = proxySource.split('\n').find(l => l.includes("'/((?!")).trim().replace(/^'|',?$/g, '')
+  const matcher = new RegExp('^' + matcherLine.replace(/\\\\/g, '\\') + '$')
+  for (const path of ['/sw.js', '/manifest.json', '/offline.html', '/logo-tigf.png', '/_next/static/x.js']) {
+    assert.equal(matcher.test(path), false, path)
+  }
+  for (const path of ['/', '/dashboard', '/auth/callback']) assert.equal(matcher.test(path), true, path)
+
   let savedReminder
   const reminderActions = load('lib/actions/reminders.ts', {
     '@/lib/utils/push': push,

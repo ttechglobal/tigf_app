@@ -33,16 +33,23 @@ export function GratitudeVerse() {
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
+    // Respect users who ask for less motion: show one verse and don't rotate.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let fade: ReturnType<typeof setTimeout> | undefined
     const interval = setInterval(() => {
       setVisible(false)
       // wait for the fade-out, then swap text and fade back in
-      setTimeout(() => {
+      fade = setTimeout(() => {
         setIndex(i => (i + 1) % VERSES.length)
         setVisible(true)
       }, 400)
     }, ROTATE_MS)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      clearTimeout(fade)
+    }
   }, [])
 
   const verse = VERSES[index]
@@ -54,7 +61,7 @@ export function GratitudeVerse() {
           visible ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        "{verse.text}"
+        &ldquo;{verse.text}&rdquo;
       </p>
       <p
         className={`text-xs font-semibold text-tigf-magenta mt-1 transition-opacity duration-400 ${

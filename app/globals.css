@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme inline {
@@ -30,7 +29,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { font-family: 'Open Sans', system-ui, sans-serif; }
+html { font-family: var(--font-open-sans), system-ui, sans-serif; }
 
 body {
   background: var(--background);

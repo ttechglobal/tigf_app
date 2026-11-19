@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#a62c71">
+  <title>You're offline · TIGF</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #fffef4; --fg: #1a1a1a; --muted: #6b6560; --brand: #a62c71; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #201a1d; --fg: #f0eeff; --muted: #9d9ab0; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+      background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; text-align: center; }
+    main { max-width: 22rem; }
+    img { height: 48px; width: auto; }
+    h1 { font-size: 1.25rem; margin: 1rem 0 .5rem; }
+    p { color: var(--muted); font-size: .9rem; line-height: 1.5; margin: 0 0 1.25rem; }
+    button { background: var(--brand); color: #fff; border: 0; border-radius: .75rem; padding: .7rem 1.4rem;
+      font: inherit; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="/logo-tigf.png" alt="TIGF">
+    <h1>You're offline</h1>
+    <p>TIGF needs a connection to save and load your entries. Check your internet and try again.</p>
+    <button onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>

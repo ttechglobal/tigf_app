@@ -27,7 +27,9 @@ export function CanvasRenderer({ items, dayNumber, date }: CanvasRendererProps) 
     setShareStatus('')
 
     await ensureFontsLoaded()
-    drawTIGF({ ctx, items, dayNumber, date })
+    let host = ''
+    try { host = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? '').host } catch { /* not configured */ }
+    drawTIGF({ ctx, items, dayNumber, date, handle: host ? `TIGF · ${host}` : undefined })
 
     // Convert to data-URL for the <img> preview
     setImgSrc(canvas.toDataURL('image/png'))
@@ -70,6 +72,7 @@ export function CanvasRenderer({ items, dayNumber, date }: CanvasRendererProps) 
       {/* Image preview */}
       {imgSrc && (
         <div className="w-full flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element -- generated data URL, not optimizable */}
           <img
             src={imgSrc}
             alt={`TIGF Day ${dayNumber} gratitude image`}

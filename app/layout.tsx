@@ -5,7 +5,12 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import { TimezoneSync } from '@/components/TimezoneSync'
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/user'
+import { Open_Sans, Fredoka } from 'next/font/google'
+
+// Self-hosted by next/font. The CSS variables are also read by the share-image canvas.
+const openSans = Open_Sans({ subsets: ['latin'], display: 'swap', variable: '--font-open-sans' })
+const fredoka = Fredoka({ subsets: ['latin'], display: 'swap', variable: '--font-fredoka' })
 
 export const metadata: Metadata = {
   title: {
@@ -17,11 +22,10 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${openSans.variable} ${fredoka.variable}`}>
       <head>
         {/* Inline script prevents dark-mode flash before React hydrates */}
         <script dangerouslySetInnerHTML={{ __html: `
