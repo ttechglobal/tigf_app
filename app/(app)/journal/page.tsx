@@ -37,7 +37,7 @@ export default async function JournalPage() {
           </Link>
         </div>
       ) : (
-        <JournalClient entries={newestFirst} summary={summary} />
+        <JournalClient entries={newestFirst} summary={summary} today={today} />
       )}
     </div>
   )

@@ -4,6 +4,7 @@ import { TopHeader } from '@/components/layout/TopHeader'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
+import { PullToRefresh } from '@/components/layout/PullToRefresh'
 import { TimezoneSync } from '@/components/TimezoneSync'
 import { getUser } from '@/lib/supabase/user'
 import { Open_Sans, Fredoka } from 'next/font/google'
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="antialiased min-h-screen">
         <ServiceWorkerRegister />
+        <PullToRefresh />
         <TimezoneSync />
         <TopHeader user={user} />
         <main>

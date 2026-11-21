@@ -5,13 +5,14 @@ import { GuestDashboard } from '@/components/dashboard/GuestDashboard'
 import { DayChangeWatcher } from '@/components/dashboard/DayChangeWatcher'
 import { InstallPrompt } from '@/components/layout/InstallPrompt'
 import { dayOfYear } from '@/lib/utils/date'
-import { getTodayForRequest } from '@/lib/utils/request-date'
+import { getTodayForRequest, getGreetingForRequest } from '@/lib/utils/request-date'
 
 export default async function HomePage() {
   const user = await getUser()
   if (user) redirect('/dashboard')
 
   const today = await getTodayForRequest()
+  const greeting = await getGreetingForRequest()
 
   return (
     <div className="flex flex-col">
@@ -19,6 +20,7 @@ export default async function HomePage() {
       <div className="max-w-2xl mx-auto w-full px-4 pt-6 pb-12 flex flex-col gap-10">
         {/* Hero */}
         <div className="text-center flex flex-col gap-3">
+          <p className="text-lg font-semibold text-[var(--foreground)]">{greeting} 👋</p>
           <p className="text-xs font-bold tracking-[0.25em] text-tigf-magenta uppercase">Today is Day {dayOfYear(today)}</p>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[var(--foreground)] leading-tight">
             WHAT ARE YOU<br />GRATEFUL FOR?

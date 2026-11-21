@@ -47,6 +47,7 @@ export async function updateUsername(formData: FormData) {
   if (error?.code === '23505') return { error: 'That username is already taken.' }
   if (error || !data) return { error: 'Could not update your username. Please try again.' }
   revalidatePath('/settings')
+  revalidatePath('/dashboard')
   return { success: true, username: data.username as string }
 }
 

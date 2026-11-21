@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { EntryCard } from '@/components/journal/EntryCard'
+import { ActivityHeatmap } from '@/components/journal/ActivityHeatmap'
 import { formatDateLong } from '@/lib/utils/date'
 import type { StreakSummary } from '@/lib/utils/streak'
 import type { Entry } from '@/types'
@@ -22,7 +23,7 @@ function Stat({ value, label }: { value: number; label: string }) {
 }
 
 /** Entries arrive newest first; this adds the summary, search and month/year grouping. */
-export function JournalClient({ entries, summary }: { entries: Entry[]; summary: StreakSummary }) {
+export function JournalClient({ entries, summary, today }: { entries: Entry[]; summary: StreakSummary; today: string }) {
   const [query, setQuery] = useState('')
 
   const groups = useMemo(() => {
@@ -49,6 +50,8 @@ export function JournalClient({ entries, summary }: { entries: Entry[]; summary:
         <Stat value={summary.longest} label="longest streak" />
         <Stat value={summary.total} label={summary.total === 1 ? 'entry' : 'entries'} />
       </div>
+
+      <ActivityHeatmap dates={entries.map(entry => entry.date)} today={today} />
 
       <div className="flex flex-col gap-3">
         <label htmlFor="journal-search" className="sr-only">Search your journal</label>

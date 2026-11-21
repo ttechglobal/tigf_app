@@ -9,6 +9,14 @@ import { ReminderSettings } from './ReminderSettings'
 
 export const metadata = { title: 'Settings' }
 
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)] px-1">
+      {children}
+    </h2>
+  )
+}
+
 export default async function SettingsPage() {
   const user = await getUser()
   if (!user) redirect('/login')
@@ -27,22 +35,33 @@ export default async function SettingsPage() {
         <p className="text-[var(--muted)] text-sm mt-1">Your account and preferences</p>
       </div>
 
-      <AccountSection username={profile?.username ?? ''} email={user.email ?? ''} />
+      <section className="flex flex-col gap-3">
+        <GroupLabel>Account</GroupLabel>
+        <AccountSection username={profile?.username ?? ''} email={user.email ?? ''} />
+      </section>
 
-      {/* Appearance */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-1">
-        <h2 className="font-bold text-sm text-tigf-magenta uppercase tracking-wider mb-2">
-          Appearance
-        </h2>
-        <ThemeToggleRow />
-      </div>
+      <section className="flex flex-col gap-3">
+        <GroupLabel>Preferences</GroupLabel>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 flex flex-col gap-1">
+          <h3 className="font-bold text-sm text-tigf-magenta uppercase tracking-wider mb-2">
+            Appearance
+          </h3>
+          <ThemeToggleRow />
+        </div>
+        <ReminderSettings />
+      </section>
 
-      {/* Sign out */}
-      <ReminderSettings />
-      <SignOutButton />
-      <div className="flex justify-center">
-        <DeleteAccount />
-      </div>
+      <section className="flex flex-col gap-3">
+        <GroupLabel>Session</GroupLabel>
+        <SignOutButton />
+      </section>
+
+      <section className="flex flex-col gap-3 border-t border-[var(--border)] pt-6">
+        <GroupLabel>Danger zone</GroupLabel>
+        <div className="flex justify-center">
+          <DeleteAccount />
+        </div>
+      </section>
     </div>
   )
 }

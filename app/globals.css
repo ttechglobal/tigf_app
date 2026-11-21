@@ -16,15 +16,15 @@
   --foreground: #1a1a1a;
   --surface:    #ffffff;
   --border:     #e8e0d5;
-  --muted:      #6b6560;
+  --muted:      #5f5853;
 }
 
 .dark {
-  --background: #201a1d;
-  --foreground: #f0eeff;
-  --surface:    #2D2D3A;
-  --border:     #3d3d50;
-  --muted:      #9d9ab0;
+  --background: #1c1719;
+  --foreground: #f6efe9;
+  --surface:    #292125;
+  --border:     #43383d;
+  --muted:      #b5aaaf;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -55,3 +55,20 @@ body {
 
 /* Selection colour */
 ::selection { background: #a62c7130; }
+
+/* Loading skeletons */
+@keyframes tigf-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--surface) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: tigf-shimmer 1.6s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+
+/* "Saved" celebration */
+@keyframes tigf-pop { 0% { opacity: 0; transform: scale(0.92) translateY(8px); } 60% { transform: scale(1.02); } 100% { opacity: 1; transform: none; } }
+.animate-pop { animation: tigf-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .animate-pop { animation: none; }
+}

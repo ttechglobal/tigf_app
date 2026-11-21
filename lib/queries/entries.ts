@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { dayOfYear } from '@/lib/utils/date'
 import type { Entry } from '@/types'
@@ -57,3 +58,10 @@ export async function getTodayEntry(
     dayNumber: dayOfYear(todayDate),
   }
 }
+
+/** The signed-in user's username, for greetings. Optional, so a failure never blocks a page. */
+export const getUsername = cache(async (userId: string): Promise<string> => {
+  const supabase = await createClient()
+  const { data } = await supabase.from('profiles').select('username').eq('id', userId).maybeSingle()
+  return (data?.username as string | undefined) ?? ''
+})

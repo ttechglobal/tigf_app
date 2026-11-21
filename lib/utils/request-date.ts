@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { todayInTimezone } from '@/lib/utils/date'
+import { greetingForHour, hourInTimezone } from '@/lib/utils/greeting'
 
 export const TIMEZONE_COOKIE = 'tigf-tz'
 
@@ -14,4 +15,13 @@ export async function getTodayForRequest(): Promise<string> {
     try { return todayInTimezone(decodeURIComponent(zone)) } catch { /* fall through */ }
   }
   return todayInTimezone('UTC')
+}
+
+/** "Good morning" / "Good afternoon" / … for the request's time zone (UTC until the zone cookie exists). */
+export async function getGreetingForRequest(): Promise<string> {
+  const zone = (await cookies()).get(TIMEZONE_COOKIE)?.value
+  if (zone) {
+    try { return greetingForHour(hourInTimezone(decodeURIComponent(zone))) } catch { /* fall through */ }
+  }
+  return greetingForHour(hourInTimezone('UTC'))
 }
